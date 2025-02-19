@@ -26,8 +26,10 @@ function App() {
   });
 
   useEffect(() => {
+  if (recipes.length > 0) { // Prevent unnecessary localStorage writes
     localStorage.setItem("recipes", JSON.stringify(recipes));
-  }, [recipes]);
+  }
+}, [recipes]);
 
   const handleAddRecipe = (newRecipe) => {
     setRecipes([...recipes, newRecipe]);
