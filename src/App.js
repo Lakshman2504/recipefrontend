@@ -10,13 +10,14 @@ import MyRecipe from './pages/myRecipe';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem("loggedInUser") !== null;
+    return localStorage.getItem("loggedInUser") === "true"; // Fix login persistence
   });
 
-  // ✅ Save login state when user logs in
   useEffect(() => {
     if (isLoggedIn) {
       localStorage.setItem("loggedInUser", "true");
+    } else {
+      localStorage.removeItem("loggedInUser"); // Ensures proper logout
     }
   }, [isLoggedIn]);
 
@@ -34,16 +35,19 @@ function App() {
 
   return (
     <Router>
-      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />} {/* Show Navbar only when logged in */}
+      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />} {/* Navbar appears only when logged in */}
 
       <Routes>
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/register" element={<Register />} />
 
-        {/* 🔒 Protected Routes (Redirects to Login if not logged in) */}
+        {/* 🔒 Protected Routes - Redirect to Login if not authenticated */}
         <Route path="/" element={isLoggedIn ? <Home recipes={recipes} /> : <Navigate to="/login" />} />
         <Route path="/add-recipe" element={isLoggedIn ? <AddRecipe onAddRecipe={handleAddRecipe} /> : <Navigate to="/login" />} />
         <Route path="/my-recipes" element={isLoggedIn ? <MyRecipe recipes={recipes} setRecipes={setRecipes} /> : <Navigate to="/login" />} />
+
+        {/* Catch-all route to redirect unknown paths to Home or Login */}
+        <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
       </Routes>
     </Router>
   );
